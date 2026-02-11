@@ -19,6 +19,16 @@ const FadeIn: React.FC<FadeInProps> = ({
   const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      setIsVisible(true);
+      return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -26,24 +36,33 @@ const FadeIn: React.FC<FadeInProps> = ({
           if (domRef.current) observer.unobserve(domRef.current);
         }
       });
-    }, { threshold: 0.1 }); // Trigger when 10% visible
+    }, { 
+      threshold: 0,
+      rootMargin: '0px 0px -20px 0px'
+    });
 
     const currentElement = domRef.current;
     if (currentElement) {
       observer.observe(currentElement);
     }
 
+    // Sécurité : force l'affichage après un court délai au cas où l'observateur échoue
+    const timeout = setTimeout(() => {
+      setIsVisible(true);
+    }, 1000);
+
     return () => {
       if (currentElement) observer.unobserve(currentElement);
+      clearTimeout(timeout);
     };
   }, []);
 
   const getDirectionStyles = () => {
     switch (direction) {
-      case 'up': return 'translate-y-10';
-      case 'down': return '-translate-y-10';
-      case 'left': return 'translate-x-10';
-      case 'right': return '-translate-x-10';
+      case 'up': return 'translate-y-8';
+      case 'down': return '-translate-y-8';
+      case 'left': return 'translate-x-8';
+      case 'right': return '-translate-x-8';
       default: return '';
     }
   };
