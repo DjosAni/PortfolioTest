@@ -1,64 +1,567 @@
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio - Développeur Créatif</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration Tailwind -->
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              primary: '#f8fafc', // slate-50
-              secondary: '#64748b', // slate-500
-              accent: '#818cf8', // indigo-400
-              dark: '#0f172a', // slate-900
-              darker: '#020617', // slate-950
+              primary: '#f8fafc',
+              secondary: '#64748b',
+              accent: '#818cf8',
+              dark: '#0f172a',
+              darker: '#020617',
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+            },
+            animation: {
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
           }
         }
       }
     </script>
+    
+    <!-- Styles personnalisés et Google Fonts -->
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
       body {
         font-family: 'Inter', sans-serif;
         background-color: #020617;
         color: #f8fafc;
+        overflow-x: hidden;
       }
+
       /* Custom scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #0f172a; }
+      ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+      /* Animation Classes controlled by JS */
+      .reveal {
+        opacity: 0;
+        transition: all 1s ease-out;
       }
-      ::-webkit-scrollbar-track {
-        background: #0f172a;
+      
+      .reveal.reveal-up { transform: translateY(30px); }
+      .reveal.reveal-down { transform: translateY(-30px); }
+      .reveal.reveal-left { transform: translateX(30px); }
+      .reveal.reveal-right { transform: translateX(-30px); }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translate(0, 0);
       }
-      ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 4px;
+
+      /* Delays */
+      .delay-100 { transition-delay: 100ms; }
+      .delay-200 { transition-delay: 200ms; }
+      .delay-300 { transition-delay: 300ms; }
+      .delay-400 { transition-delay: 400ms; }
+      .delay-600 { transition-delay: 600ms; }
+      .delay-800 { transition-delay: 800ms; }
+
+      /* Chatbot transitions */
+      .chat-window {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: bottom right;
       }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #475569;
+      .chat-hidden {
+        opacity: 0;
+        transform: scale(0.75) translateY(20px);
+        pointer-events: none;
+      }
+      .chat-visible {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        pointer-events: all;
       }
     </style>
-  <script type="importmap">
+
+    <!-- Import Map pour Gemini SDK -->
+    <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4"
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-  </body>
+<body>
+
+    <!-- NAVBAR -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-transparent py-6">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <a href="#home" class="text-2xl font-bold tracking-tighter text-white group">
+                ALEX<span class="text-accent group-hover:text-white transition-colors">.DEV</span>
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="nav-link text-sm uppercase tracking-widest text-slate-300 hover:text-accent transition-colors duration-300 relative group">
+                    Accueil<span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#about" class="nav-link text-sm uppercase tracking-widest text-slate-300 hover:text-accent transition-colors duration-300 relative group">
+                    À propos<span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#projects" class="nav-link text-sm uppercase tracking-widest text-slate-300 hover:text-accent transition-colors duration-300 relative group">
+                    Projets<span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#contact" class="nav-link text-sm uppercase tracking-widest text-slate-300 hover:text-accent transition-colors duration-300 relative group">
+                    Contact<span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full"></span>
+                </a>
+            </div>
+
+            <!-- Mobile Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden text-white text-2xl focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden absolute top-full left-0 w-full bg-darker/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300 overflow-hidden max-h-0">
+            <div class="flex flex-col items-center py-4 space-y-4">
+                <a href="#home" class="mobile-link text-white uppercase tracking-widest hover:text-accent">Accueil</a>
+                <a href="#about" class="mobile-link text-white uppercase tracking-widest hover:text-accent">À propos</a>
+                <a href="#projects" class="mobile-link text-white uppercase tracking-widest hover:text-accent">Projets</a>
+                <a href="#contact" class="mobile-link text-white uppercase tracking-widest hover:text-accent">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-24 lg:pt-0 scroll-mt-20">
+            <!-- Blobs -->
+            <div class="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-accent/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]"></div>
+
+            <div class="max-w-7xl mx-auto px-6 z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Text -->
+                <div class="text-center lg:text-left order-2 lg:order-1">
+                    <p class="reveal reveal-up delay-200 text-accent uppercase tracking-[0.2em] mb-4 font-semibold text-sm">
+                        Développeur Frontend Senior
+                    </p>
+                    <h1 class="reveal reveal-up delay-400 text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+                        Créer des <br />
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-600">
+                            expériences uniques.
+                        </span>
+                    </h1>
+                    <p class="reveal reveal-up delay-600 text-slate-400 text-lg md:text-xl max-w-xl mb-10 leading-relaxed mx-auto lg:mx-0">
+                        Je conçois et développe des interfaces web modernes, performantes et élégantes. 
+                        Spécialisé en React, TypeScript et l'intégration d'IA.
+                    </p>
+                    <div class="reveal reveal-up delay-800 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="#projects" class="px-8 py-4 bg-white text-darker font-bold rounded-full hover:bg-slate-200 transition-colors duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                            Voir mes projets
+                        </a>
+                        <a href="#contact" class="px-8 py-4 border border-slate-700 text-white rounded-full hover:border-accent hover:text-accent transition-colors duration-300 backdrop-blur-sm">
+                            Me contacter
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Image -->
+                <div class="order-1 lg:order-2 flex justify-center lg:justify-end relative">
+                    <div class="reveal reveal-left delay-400 relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 group">
+                        <div class="absolute inset-0 rounded-full border-2 border-slate-700/50 scale-105 group-hover:scale-100 transition-transform duration-700"></div>
+                        <div class="absolute inset-0 rounded-full border border-accent/20 scale-110 group-hover:scale-105 transition-transform duration-700 delay-75"></div>
+                        <div class="w-full h-full rounded-full overflow-hidden border-4 border-slate-800 shadow-2xl relative z-10 bg-slate-800">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=800&q=80" alt="Portrait" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" />
+                            <div class="absolute inset-0 bg-gradient-to-tr from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        </div>
+                        <div class="absolute bottom-4 right-4 sm:bottom-8 sm:right-0 bg-slate-900/90 backdrop-blur border border-slate-700 p-3 sm:p-4 rounded-2xl shadow-xl z-20 animate-bounce">
+                            <span class="text-2xl">👋</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce text-slate-500 hidden md:block">
+                <i class="fas fa-chevron-down text-xl"></i>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="py-24 bg-darker relative scroll-mt-20">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="reveal reveal-up">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-16 text-center">
+                        À Propos & <span class="text-accent">Compétences</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    <div class="space-y-6">
+                        <div class="reveal reveal-right delay-200">
+                            <h3 class="text-2xl font-semibold text-white mb-4">L'art du code propre</h3>
+                            <p class="text-slate-400 leading-relaxed">
+                                Passionné par le développement web depuis plus de 5 ans, j'ai transformé ma curiosité en expertise. 
+                                Je ne me contente pas de faire fonctionner les choses ; je m'assure qu'elles soient performantes, maintenables et belles.
+                            </p>
+                            <p class="text-slate-400 leading-relaxed mt-4">
+                                Mon approche combine rigueur technique et sensibilité artistique. Je crois que le code est une forme d'artisanat moderne où chaque détail compte.
+                            </p>
+                        </div>
+                        <div class="reveal reveal-right delay-400 grid grid-cols-2 gap-6 mt-8">
+                             <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                               <h4 class="text-3xl font-bold text-accent mb-1">5+</h4>
+                               <p class="text-sm text-slate-500 uppercase">Années d'expérience</p>
+                             </div>
+                             <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                               <h4 class="text-3xl font-bold text-accent mb-1">50+</h4>
+                               <p class="text-sm text-slate-500 uppercase">Projets livrés</p>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Skill 1 -->
+                        <div class="reveal reveal-left delay-100 bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-accent/50 transition-colors duration-300 group">
+                            <div class="flex items-center justify-between mb-4">
+                                <i class="fa-brands fa-react text-2xl text-slate-400 group-hover:text-accent transition-colors"></i>
+                                <span class="text-slate-600 font-mono text-sm">95%</span>
+                            </div>
+                            <h4 class="text-white font-medium text-lg">React / Next.js</h4>
+                            <div class="w-full h-1 bg-slate-800 mt-3 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent rounded-full group-hover:bg-white transition-all duration-1000 ease-out" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <!-- Skill 2 -->
+                        <div class="reveal reveal-left delay-200 bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-accent/50 transition-colors duration-300 group">
+                            <div class="flex items-center justify-between mb-4">
+                                <i class="fa-brands fa-js text-2xl text-slate-400 group-hover:text-accent transition-colors"></i>
+                                <span class="text-slate-600 font-mono text-sm">90%</span>
+                            </div>
+                            <h4 class="text-white font-medium text-lg">TypeScript</h4>
+                            <div class="w-full h-1 bg-slate-800 mt-3 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent rounded-full group-hover:bg-white transition-all duration-1000 ease-out" style="width: 90%"></div>
+                            </div>
+                        </div>
+                         <!-- Skill 3 -->
+                        <div class="reveal reveal-left delay-300 bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-accent/50 transition-colors duration-300 group">
+                            <div class="flex items-center justify-between mb-4">
+                                <i class="fa-brands fa-css3-alt text-2xl text-slate-400 group-hover:text-accent transition-colors"></i>
+                                <span class="text-slate-600 font-mono text-sm">98%</span>
+                            </div>
+                            <h4 class="text-white font-medium text-lg">Tailwind CSS</h4>
+                            <div class="w-full h-1 bg-slate-800 mt-3 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent rounded-full group-hover:bg-white transition-all duration-1000 ease-out" style="width: 98%"></div>
+                            </div>
+                        </div>
+                        <!-- Skill 4 -->
+                        <div class="reveal reveal-left delay-400 bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-accent/50 transition-colors duration-300 group">
+                            <div class="flex items-center justify-between mb-4">
+                                <i class="fa-solid fa-robot text-2xl text-slate-400 group-hover:text-accent transition-colors"></i>
+                                <span class="text-slate-600 font-mono text-sm">75%</span>
+                            </div>
+                            <h4 class="text-white font-medium text-lg">AI Integration</h4>
+                            <div class="w-full h-1 bg-slate-800 mt-3 rounded-full overflow-hidden">
+                                <div class="h-full bg-accent rounded-full group-hover:bg-white transition-all duration-1000 ease-out" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS SECTION -->
+        <section id="projects" class="py-24 bg-dark relative scroll-mt-20">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="reveal reveal-up flex flex-col md:flex-row justify-between items-end mb-16">
+                    <div>
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-2">
+                            Projets <span class="text-slate-600">Sélectionnés</span>
+                        </h2>
+                        <div class="h-1 w-20 bg-accent rounded-full"></div>
+                    </div>
+                    <a href="#" class="hidden md:block text-slate-400 hover:text-white transition-colors mt-4 md:mt-0">
+                        Voir tout le catalogue <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Project 1 -->
+                    <div class="reveal reveal-up delay-100 group relative rounded-2xl overflow-hidden cursor-pointer aspect-[4/3]">
+                        <img src="https://picsum.photos/800/600?random=1" alt="Project 1" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <div class="flex gap-2 mb-3">
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">Next.js</span>
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">Stripe</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-2">E-Commerce Luxe</h3>
+                                <p class="text-slate-300 text-sm mb-4 line-clamp-2">Une plateforme d'achat minimaliste pour une marque de mode haut de gamme.</p>
+                                <span class="text-white text-sm font-semibold flex items-center gap-2">Voir le projet <i class="fas fa-external-link-alt text-xs"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Project 2 -->
+                    <div class="reveal reveal-up delay-200 group relative rounded-2xl overflow-hidden cursor-pointer aspect-[4/3]">
+                        <img src="https://picsum.photos/800/600?random=2" alt="Project 2" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <div class="flex gap-2 mb-3">
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">React</span>
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">D3.js</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Dashboard Analytique</h3>
+                                <p class="text-slate-300 text-sm mb-4 line-clamp-2">Interface de visualisation de données en temps réel.</p>
+                                <span class="text-white text-sm font-semibold flex items-center gap-2">Voir le projet <i class="fas fa-external-link-alt text-xs"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Project 3 -->
+                    <div class="reveal reveal-up delay-300 group relative rounded-2xl overflow-hidden cursor-pointer aspect-[4/3]">
+                        <img src="https://picsum.photos/800/600?random=3" alt="Project 3" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <div class="flex gap-2 mb-3">
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">Gemini API</span>
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">Node.js</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-2">App Immobilière IA</h3>
+                                <p class="text-slate-300 text-sm mb-4 line-clamp-2">Estimation immobilière par intelligence artificielle.</p>
+                                <span class="text-white text-sm font-semibold flex items-center gap-2">Voir le projet <i class="fas fa-external-link-alt text-xs"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Project 4 -->
+                    <div class="reveal reveal-up delay-400 group relative rounded-2xl overflow-hidden cursor-pointer aspect-[4/3]">
+                        <img src="https://picsum.photos/800/600?random=4" alt="Project 4" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 filter grayscale group-hover:grayscale-0" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+                            <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                <div class="flex gap-2 mb-3">
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">WebGL</span>
+                                    <span class="text-xs font-bold px-2 py-1 bg-accent/20 text-accent rounded backdrop-blur-md border border-accent/20">GSAP</span>
+                                </div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Portfolio Photographe</h3>
+                                <p class="text-slate-300 text-sm mb-4 line-clamp-2">Galerie interactive avec transitions fluides.</p>
+                                <span class="text-white text-sm font-semibold flex items-center gap-2">Voir le projet <i class="fas fa-external-link-alt text-xs"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="py-24 bg-darker relative overflow-hidden scroll-mt-20">
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent"></div>
+            
+            <div class="max-w-4xl mx-auto px-6 relative z-10">
+                <div class="reveal reveal-up text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
+                        Démarrons un <span class="text-accent">Projet</span>
+                    </h2>
+                    <p class="text-slate-400 text-lg">
+                        Intéressé par une collaboration ? N'hésitez pas à m'envoyer un message.
+                    </p>
+                </div>
+
+                <div class="reveal reveal-up delay-200">
+                    <form class="bg-slate-900/50 p-8 md:p-10 rounded-3xl border border-slate-800 backdrop-blur-sm shadow-xl" onsubmit="event.preventDefault(); alert('Message envoyé !');">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium text-slate-300 ml-1">Nom</label>
+                                <input type="text" class="w-full bg-darker border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all" placeholder="Votre nom" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium text-slate-300 ml-1">Email</label>
+                                <input type="email" class="w-full bg-darker border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all" placeholder="votre@email.com" />
+                            </div>
+                        </div>
+                        <div class="space-y-2 mb-8">
+                            <label class="text-sm font-medium text-slate-300 ml-1">Message</label>
+                            <textarea rows="4" class="w-full bg-darker border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all resize-none" placeholder="Décrivez votre projet..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-white text-darker font-bold py-4 rounded-xl hover:bg-slate-200 transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                            Envoyer le message
+                        </button>
+                    </form>
+                </div>
+
+                <div class="reveal reveal-up delay-400 flex justify-center gap-8 mt-16">
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors text-2xl"><i class="fab fa-github"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors text-2xl"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors text-2xl"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-slate-400 hover:text-white transition-colors text-2xl"><i class="fab fa-dribbble"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-8 bg-darker border-t border-slate-900 text-center">
+        <p class="text-slate-600 text-sm">
+            &copy; 2025 Alex.Dev. Tous droits réservés. <br />
+            <span class="text-xs opacity-50">Designed with Tailwind CSS. Powered by Google Gemini.</span>
+        </p>
+    </footer>
+
+    <!-- CHATBOT WIDGET -->
+    <div id="chatbot-container">
+        <!-- Toggle Button -->
+        <button id="chat-toggle" class="fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 flex items-center justify-center bg-accent text-white animate-pulse-slow">
+            <i class="fas fa-comment-dots text-2xl transition-transform duration-300"></i>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="chat-window chat-hidden fixed bottom-24 right-6 w-[90vw] md:w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden" style="height: 500px; max-height: 70vh;">
+            <!-- Header -->
+            <div class="bg-slate-800 p-4 border-b border-slate-700 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <h3 class="font-semibold text-white">Assistant IA</h3>
+                </div>
+                <span class="text-xs text-slate-400">Gemini Powered</span>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-darker/50">
+                <!-- Initial Message -->
+                <div class="flex justify-start">
+                    <div class="max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed bg-slate-800 text-slate-200 rounded-bl-none border border-slate-700">
+                        Bonjour ! Je suis l'assistant IA d'Alex. Posez-moi des questions sur ses compétences ou son expérience.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 bg-slate-800 border-t border-slate-700">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Posez une question..." class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-accent transition-colors text-sm" />
+                    <button id="chat-send" class="bg-accent hover:bg-indigo-500 text-white rounded-xl px-4 py-2 transition-colors disabled:opacity-50">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI SCRIPT (No dependencies) -->
+    <script>
+        // Ce script s'exécute immédiatement pour garantir que les animations UI fonctionnent
+        // même si le module externe (chatbot) échoue.
+        (function() {
+            // Fonction d'initialisation des animations
+            function initAnimations() {
+                console.log("UI: Initialisation des animations...");
+                
+                // 1. Gestion du Scroll avec IntersectionObserver
+                const observerOptions = {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                const revealElements = document.querySelectorAll('.reveal');
+                if (revealElements.length > 0) {
+                    revealElements.forEach(el => {
+                        observer.observe(el);
+                    });
+                }
+
+                // 2. Fallback de sécurité (Force l'affichage après 500ms)
+                setTimeout(() => {
+                    document.querySelectorAll('.reveal').forEach(el => {
+                        if (!el.classList.contains('active')) {
+                            el.classList.add('active');
+                        }
+                    });
+                }, 500);
+
+                // 3. Navbar Scroll Effect
+                const navbar = document.getElementById('navbar');
+                if (navbar) {
+                    window.addEventListener('scroll', () => {
+                        if (window.scrollY > 50) {
+                            navbar.classList.add('bg-darker/80', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                            navbar.classList.remove('bg-transparent', 'py-6');
+                        } else {
+                            navbar.classList.remove('bg-darker/80', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+                            navbar.classList.add('bg-transparent', 'py-6');
+                        }
+                    });
+                }
+
+                // 4. Mobile Menu Toggle
+                const mobileBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+                
+                if (mobileBtn && mobileMenu) {
+                    const icon = mobileBtn.querySelector('i');
+
+                    mobileBtn.addEventListener('click', () => {
+                        const isOpen = mobileMenu.classList.contains('max-h-64');
+                        if (isOpen) {
+                            mobileMenu.classList.remove('max-h-64');
+                            mobileMenu.classList.add('max-h-0');
+                            if(icon) {
+                                icon.classList.remove('fa-times');
+                                icon.classList.add('fa-bars');
+                            }
+                        } else {
+                            mobileMenu.classList.remove('max-h-0');
+                            mobileMenu.classList.add('max-h-64');
+                            if(icon) {
+                                icon.classList.remove('fa-bars');
+                                icon.classList.add('fa-times');
+                            }
+                        }
+                    });
+
+                    // Close mobile menu on link click
+                    document.querySelectorAll('.mobile-link').forEach(link => {
+                        link.addEventListener('click', () => {
+                            mobileMenu.classList.remove('max-h-64');
+                            mobileMenu.classList.add('max-h-0');
+                            if(icon) {
+                                icon.classList.remove('fa-times');
+                                icon.classList.add('fa-bars');
+                            }
+                        });
+                    });
+                }
+            }
+
+            // Lancement
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAnimations);
+            } else {
+                initAnimations();
+            }
+        })();
+    </script>
+
+    <!-- CHATBOT LOGIC SCRIPT (Module) -->
+    <script type="module" src="./main.js"></script>
+</body>
 </html>
